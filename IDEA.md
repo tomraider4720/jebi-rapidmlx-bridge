@@ -41,12 +41,19 @@ jebi (ollama-Provider) -> proxy.py :11434 -> Rapid-MLX :8000
 
 ## Status
 
-Funktionsfähiger Prototyp, manuell gegen einen laufenden Rapid-MLX-Server
-(`qwen3.5-4b-4bit`) getestet:
+Funktionsfähig, end-to-end verifiziert:
 
-- `GET /api/tags` liefert eine gültige Ollama-Modell-Liste.
+- `GET /api/tags` liefert eine gültige Ollama-Modell-Liste (aus
+  Rapid-MLX' `GET /v1/models` synthetisiert).
 - `POST /v1/chat/completions` non-streaming und streaming (SSE) laufen
   transparent durch.
+- jebi selbst (`~/.config/jebi/settings.json` auf `provider: "ollama"`,
+  `endpointURL: "http://localhost:11434"`) hat nach Neustart erfolgreich
+  `/api/tags` gegen den Proxy abgefragt (Provider gilt als verfügbar) und
+  eine echte `ask_global`-Anfrage über den jebi-Core-WebSocket (`/global`)
+  vollständig durch Proxy → Rapid-MLX beantwortet bekommen.
+- Läuft produktiv als macOS-LaunchAgent (`launchd/`), startet automatisch
+  beim Login.
 
 ## Nicht im Scope (bisher)
 

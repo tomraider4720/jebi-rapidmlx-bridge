@@ -79,6 +79,37 @@ curl -s http://127.0.0.1:11434/v1/chat/completions \
   -d '{"model":"qwen3.5-4b-4bit","messages":[{"role":"user","content":"Sag nur OK"}],"stream":false}'
 ```
 
+End-to-End verifiziert (jebi-Kern-WebSocket `/global`, `ask_global`-Nachricht):
+Antwort kam vollständig durch den Proxy von Rapid-MLX zurück.
+
+## Autostart (LaunchAgent, macOS)
+
+Damit der Proxy schon läuft, bevor jebi startet:
+
+```bash
+cp launchd/sh.toer.jebi-rapidmlx-bridge.plist.template \
+   ~/Library/LaunchAgents/sh.toer.jebi-rapidmlx-bridge.plist
+
+# Platzhalter ersetzen:
+#   REPLACE_WITH_ABSOLUTE_PATH_TO/proxy.py  -> z.B. /Users/<du>/GitHub/jebi-rapidmlx-bridge/proxy.py
+#   REPLACE_WITH_HOME                        -> z.B. /Users/<du>
+sed -i '' "s#REPLACE_WITH_ABSOLUTE_PATH_TO#$(pwd)#; s#REPLACE_WITH_HOME#$HOME#" \
+   ~/Library/LaunchAgents/sh.toer.jebi-rapidmlx-bridge.plist
+
+launchctl bootstrap gui/$(id -u) ~/Library/LaunchAgents/sh.toer.jebi-rapidmlx-bridge.plist
+```
+
+Läuft dauerhaft mit `RunAtLoad`, startet bei Absturz automatisch neu
+(außer bei sauberem Exit-Code 0). Logs unter
+`~/Library/Logs/jebi-rapidmlx-bridge.log`.
+
+Verwalten:
+
+```bash
+launchctl print gui/$(id -u)/sh.toer.jebi-rapidmlx-bridge   # Status
+launchctl bootout gui/$(id -u)/sh.toer.jebi-rapidmlx-bridge # stoppen/entfernen
+```
+
 ## Scope / Grenzen
 
 - Kein Auth, kein TLS — nur für localhost-zu-localhost gedacht.
